@@ -12,7 +12,6 @@ public class PlayerInteract : MonoBehaviour
         playerUI = GetComponent<PlayerUI>();    
     }
 
-    // Update is called once per frame
     void Update()
     {
         playerUI.UpdateTxt(string.Empty);   
