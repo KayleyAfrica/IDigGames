@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -21,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
     {
         walk,
         sprint,
+        climbing,
     }
     void StateHandler()
     {
@@ -56,11 +58,35 @@ public class PlayerMovement : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
 
-        // Move
-        var H = Input.GetAxis("Horizontal");
-        var V = Input.GetAxis("Vertical");
+        if(state != movementState.climbing)
+        {
+            // Move
+            var H = Input.GetAxis("Horizontal");
+            var V = Input.GetAxis("Vertical");
 
-        Vector3 move = transform.right * H + transform.forward * V;
-        controller.Move(move * Time.deltaTime * speed);
+            Vector3 move = transform.right * H + transform.forward * V;
+            controller.Move(move * Time.deltaTime * speed);
+          }
+
+
+        float avoidLadder = .1f;
+        float ladderDistance = 2f;
+        if (Physics.Raycast(transform.position + Vector3.up * avoidLadder, transform.forward, out RaycastHit hit, ladderDistance))
+        {
+            if (hit.transform.TryGetComponent(out Ladder ladder ))
+            {
+                print("Found Ladder");
+                state = movementState.climbing;
+                velocity.y = 0f;
+                isGrounded = true;
+            }
+        }
+
+        if(state == movementState.climbing)
+        {
+            var climb = Input.GetAxis("Vertical");
+            Vector3 climbUp = transform.up * climb;
+            controller.Move(climbUp * speed * Time.deltaTime);
+        }
     }
 }
