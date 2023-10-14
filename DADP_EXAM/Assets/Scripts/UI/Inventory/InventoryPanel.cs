@@ -5,11 +5,10 @@ public class InventoryPanel : MonoBehaviour
     public GameObject inventoryPanel;
     bool isActive;
 
-    public Animator anim;
 
-    void Start()
+    void Awake()
     {
-        
+        inventoryPanel.SetActive(true);
     }
 
 
@@ -18,8 +17,7 @@ public class InventoryPanel : MonoBehaviour
         isActive = !isActive;
         if(Input.GetKeyDown(KeyCode.I))
         {
-            anim.SetBool("isOpen", isActive);
-            ///inventoryPanel.SetActive(isActive);    
+            inventoryPanel.SetActive(isActive);    
         }
     }
 }
