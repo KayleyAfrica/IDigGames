@@ -3,7 +3,9 @@ using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class PlayerMovement : MonoBehaviour
 {
+    //Ref to Char controller
     public CharacterController controller;
+    //move vars
     private float speed;
     public float walkSpeed;
     public float sprintSpeed;
@@ -24,6 +26,12 @@ public class PlayerMovement : MonoBehaviour
         sprint,
         climbing,
     }
+
+    // Ladder vars
+    bool isClimbing;
+    float Range = 1f;
+    public Transform detectLadder;
+
     void StateHandler()
     {
         if(Input.GetKey(KeyCode.LeftShift) && isGrounded)
@@ -32,7 +40,7 @@ public class PlayerMovement : MonoBehaviour
             speed = sprintSpeed;
         }
 
-        else if (isGrounded)
+        else if (isGrounded && state != movementState.climbing)
         {
             state = movementState.walk;
             speed = walkSpeed;
@@ -68,25 +76,36 @@ public class PlayerMovement : MonoBehaviour
             controller.Move(move * Time.deltaTime * speed);
           }
 
+        ClimbLadder();
 
-        float avoidLadder = .1f;
-        float ladderDistance = 2f;
-        if (Physics.Raycast(transform.position + Vector3.up * avoidLadder, transform.forward, out RaycastHit hit, ladderDistance))
-        {
-            if (hit.transform.TryGetComponent(out Ladder ladder ))
-            {
-                print("Found Ladder");
-                state = movementState.climbing;
-                velocity.y = 0f;
-                isGrounded = true;
-            }
-        }
-
-        if(state == movementState.climbing)
+        if (state == movementState.climbing && isClimbing)
         {
             var climb = Input.GetAxis("Vertical");
             Vector3 climbUp = transform.up * climb;
             controller.Move(climbUp * speed * Time.deltaTime);
+        }
+    }
+
+    void ClimbLadder()
+    {
+        Ray ray = new Ray(detectLadder.position, detectLadder.forward);
+        if(Physics.Raycast(ray, out RaycastHit hit, Range))
+        {
+            if(hit.transform.TryGetComponent(out Ladder ladder))
+            {
+                velocity.y = 0;
+                isGrounded = true;
+                isClimbing = true;
+                print("Ladder Detected");
+                state = movementState.climbing; 
+            }
+        }
+
+        else
+        {
+            isGrounded = true;
+            isClimbing = false;
+            state = movementState.walk;
         }
     }
 }
