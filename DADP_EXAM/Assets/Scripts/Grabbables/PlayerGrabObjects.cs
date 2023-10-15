@@ -7,9 +7,10 @@ public class PlayerGrabObjects : MonoBehaviour
     private GrabbableObject grabbableObject;
     float Range = 3f;
     public LayerMask excludePlayer;
+
     void Update()
     {
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetKeyDown(KeyCode.E))
         {
             if (grabbableObject == null)
             {
